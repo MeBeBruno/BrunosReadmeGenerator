@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<title>Bruno's README.md Generator</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--color_label_background: #00ff00;
+
+			--color_background: #ffffff;
+			--color_text: #000000;
+			--color_primary: #ff00ff;
+			--color_surface: #ffffff;
+			--color_border: #000000;
+			--color_error: #cc0000;
+
+			--spacing_small: 1rem;
+			--spacing_medium: 2rem;
+			--spacing_large: 4rem;
+			--border_radius: 1rem;
+			--font_size_base: 1rem;
+			--font_size_large: clamp(1.75rem, 4vw, 2.5rem);
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--color_background: #000000;
+				--color_text: #ffffff;
+				--color_primary: #00ff00;
+				--color_surface: #000000;
+				--color_border: #ffffff;
+				--color_error: #ff5555;
+			}
+		}
+
+		.page_main_body {
+			background-color: var(--color_background);
+			color: var(--color_text);
+			font-family: system-ui, sans-serif;
+			font-size: var(--font_size_base);
+			line-height: 1.6;
+			padding: var(--spacing_large) var(--spacing_medium);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		main {
+			width: 100%;
+			max-width: 60rem;
+			display: flex;
+			flex-direction: column;
+			gap: var(--spacing_large);
+		}
+
+		header {
+			text-align: center;
+		}
+
+		h1 {
+			font-size: var(--font_size_large);
+			margin-bottom: var(--spacing_small);
+			color: var(--color_primary);
+		}
+
+		h2 {
+			margin-bottom: var(--spacing_medium);
+			color: var(--color_primary);
+			margin-top: var(--spacing_medium);
+		}
+
+		h2:first-of-type {
+			margin-top: 0;
+		}
+
+		p {
+			margin-bottom: var(--spacing_small);
+		}
+
+		section {
+			background-color: var(--color_surface);
+			padding: var(--spacing_large);
+			border-radius: var(--border_radius);
+			box-shadow: 0 0.5rem 1rem oklch(0 0 0 / 0.1);
+			border: 0.1rem solid var(--color_border);
+		}
+
+		.form_group_element {
+			display: flex;
+			flex-direction: column;
+			gap: var(--spacing_small);
+			margin-bottom: var(--spacing_medium);
+		}
+
+		.input_field_container_element {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.checkbox_label_element {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			cursor: pointer;
+			font-weight: bold;
+		}
+
+		.text_input_label_element {
+			font-weight: bold;
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+		}
+
+		.required_indicator_element {
+			color: var(--color_primary);
+		}
+
+		input[type='checkbox'] {
+			width: 1.5rem;
+			height: 1.5rem;
+			cursor: pointer;
+			accent-color: var(--color_primary);
+			flex-shrink: 0;
+		}
+
+		input[type='text'] {
+			width: 100%;
+			padding: var(--spacing_small);
+			font-family: inherit;
+			font-size: var(--font_size_base);
+			background-color: var(--color_background);
+			color: var(--color_text);
+			border: 0.1rem solid var(--color_border);
+			border-radius: 0.5rem;
+		}
+
+		input[type='text']:focus-visible,
+		input[type='checkbox']:focus-visible,
+		textarea:focus-visible,
+		button:focus-visible {
+			outline: 0.2rem solid var(--color_primary);
+			outline-offset: 0.2rem;
+		}
+
+		.input_invalid_state {
+			border-color: var(--color_error);
+		}
+
+		.validation_message_element {
+			color: var(--color_error);
+			font-size: 0.875rem;
+			font-weight: bold;
+			min-height: 1.25rem;
+		}
+
+		.hidden_element {
+			display: none;
+		}
+
+		textarea {
+			width: 100%;
+			height: 10rem;
+			padding: var(--spacing_small);
+			font-family: monospace;
+			font-size: var(--font_size_base);
+			background-color: var(--color_background);
+			color: var(--color_text);
+			border: 0.1rem solid var(--color_border);
+			border-radius: 0.5rem;
+			resize: vertical;
+		}
+
+		.divider_element {
+			height: 0.1rem;
+			background-color: var(--color_border);
+			margin: var(--spacing_medium) 0;
+			border: none;
+		}
+
+		#iframe_preview_container_element {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 4rem;
+			padding: var(--spacing_medium);
+			background-color: var(--color_background);
+			border: 0.1rem dashed var(--color_border);
+			border-radius: var(--border_radius);
+		}
+
+		.preview_placeholder_text_element {
+			margin-bottom: 0;
+			opacity: 0.75;
+		}
+
+		.action_button_group_element {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--spacing_small);
+			margin-top: var(--spacing_small);
+		}
+
+		.action_button_element {
+			padding: 0.75rem 1.5rem;
+			font-family: inherit;
+			font-size: var(--font_size_base);
+			font-weight: bold;
+			background-color: var(--color_background);
+			color: var(--color_text);
+			border: 0.1rem solid var(--color_border);
+			border-radius: 0.5rem;
+			cursor: pointer;
+			transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+		}
+
+		.action_button_element:hover:not(:disabled) {
+			background-color: var(--color_primary);
+			color: var(--color_background);
+			border-color: var(--color_primary);
+		}
+
+		.action_button_element:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+		.status_feedback_element {
+			margin-top: 0.75rem;
+			margin-bottom: 0;
+			font-weight: bold;
+			color: var(--color_primary);
+			min-height: 1.5rem;
+		}
+
+		@media (max-width: 40rem) {
+			.page_main_body {
+				padding: var(--spacing_medium) var(--spacing_small);
+			}
+
+			section {
+				padding: var(--spacing_medium);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.action_button_element {
+				transition: none;
+			}
+		}
+	</style>
+</head>
+<body class='page_main_body'>
+	<main>
+		<header>
+			<h1>Bruno's <code>README.md</code> Generator</h1>
+			<p>A simple to use generator for standardized <code>README.md</code> headers with integrated <abbr title='Generative Artificial Intelligence'>AI</abbr> labels</p>
+		</header>
+
+		<section>
+			<h2>Repository Options</h2>
+			<div class='form_group_element'>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' id='private_checkbox_element'>
+					Private
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' id='forked_checkbox_element'>
+					Forked
+				</label>
+				<label class='checkbox_label_element' id='bruno_made_container_element'>
+					<input type='checkbox' id='bruno_made_checkbox_element' checked>
+					Bruno-made
+				</label>
+			</div>
+
+			<div class='form_group_element'>
+				<div class='input_field_container_element hidden_element' id='author_container_element'>
+					<label class='text_input_label_element' for='author_input_element'>
+						Author <span class='required_indicator_element' aria-hidden='true'>*</span>
+					</label>
+					<input type='text' id='author_input_element' placeholder='Original author name' autocomplete='off'>
+					<span class='validation_message_element' id='author_validation_message_element' role='alert'></span>
+				</div>
+
+				<div class='input_field_container_element'>
+					<label class='text_input_label_element' for='title_input_element'>
+						Title <span class='required_indicator_element' aria-hidden='true'>*</span>
+					</label>
+					<input type='text' id='title_input_element' placeholder='Project title' required autocomplete='off'>
+					<span class='validation_message_element' id='title_validation_message_element' role='alert'></span>
+				</div>
+
+				<div class='input_field_container_element'>
+					<label class='text_input_label_element' for='description_input_element'>
+						Short Description <span class='required_indicator_element' aria-hidden='true'>*</span>
+					</label>
+					<input type='text' id='description_input_element' placeholder='A short description of your project' required autocomplete='off'>
+					<span class='validation_message_element' id='description_validation_message_element' role='alert'></span>
+				</div>
+
+				<div class='input_field_container_element'>
+					<label class='text_input_label_element' for='emoji_input_element'>
+						Emoji <span class='required_indicator_element' aria-hidden='true'>*</span>
+					</label>
+					<input type='text' id='emoji_input_element' placeholder='e.g. 🚀' required autocomplete='off'>
+					<span class='validation_message_element' id='emoji_validation_message_element' role='alert'></span>
+				</div>
+			</div>
+
+			<hr class='divider_element'>
+
+			<h2><abbr title='Generative Artificial Intelligence'>AI</abbr> Label Generator</h2>
+			<p>Optional: Select the categories of AI-generated content your label should mark</p>
+
+			<div class='form_group_element' id='checkbox_container_element'>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='code' class='symbol_checkbox_element'>
+					Code
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='music' class='symbol_checkbox_element'>
+					Music and Sound
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='picture' class='symbol_checkbox_element'>
+					Picture
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='text' class='symbol_checkbox_element'>
+					Text
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='voice' class='symbol_checkbox_element'>
+					Voice
+				</label>
+				<label class='checkbox_label_element'>
+					<input type='checkbox' value='other' class='symbol_checkbox_element'>
+					Other (unclarified)
+				</label>
+			</div>
+
+			<h2>AI Label Preview</h2>
+			<div id='iframe_preview_container_element'>
+				<p class='preview_placeholder_text_element'>No AI label selected.</p>
+			</div>
+
+			<hr class='divider_element'>
+
+			<h2>Generated <code>README.md</code></h2>
+			<textarea id='readme_output_textarea_element' readonly aria-label='Generated README.md content'></textarea>
+
+			<div class='action_button_group_element'>
+				<button type='button' class='action_button_element' id='copy_readme_button_element' disabled>Copy README.md</button>
+				<button type='button' class='action_button_element' id='download_readme_button_element' disabled>Download README.md</button>
+			</div>
+			<p class='status_feedback_element' id='status_feedback_element' aria-live='polite'></p>
+		</section>
+	</main>
+
+	<script>
+		const ai_label_base_url_string = 'https://mebebruno.github.io/BrunosAILabelSystem/';
+
+		const symbol_file_mapping_object = {
+			'code': 'AI_Symbol_Code.svg',
+			'music': 'AI_Symbol_Music_&_Sound.svg',
+			'picture': 'AI_Symbol_Picture.svg',
+			'text': 'AI_Symbol_Text.svg',
+			'voice': 'AI_Symbol_Voice.svg',
+			'other': 'AI_Symbol_Square.svg'
+		};
+
+		const symbol_title_mapping_object = {
+			'code': 'Code',
+			'music': 'Music & Sound',
+			'picture': 'Pictures',
+			'text': 'Text',
+			'voice': 'Voice',
+			'other': 'Other'
+		};
+
+		const measured_aspect_ratio_cache_object = {};
+
+		function get_grapheme_segments_list(input_text_string) {
+			if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+				const grapheme_segmenter_object = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+				const grapheme_segments_list = [];
+				for (const segment_data_object of grapheme_segmenter_object.segment(input_text_string)) {
+					grapheme_segments_list.push(segment_data_object.segment);
+				}
+				return grapheme_segments_list;
+			}
+			return Array.from(input_text_string);
+		}
+
+		function validate_emoji_value_string(raw_emoji_string) {
+			const trimmed_emoji_string = raw_emoji_string.trim();
+			if (trimmed_emoji_string === '') {
+				return 'Emoji is required.';
+			}
+
+			const grapheme_segments_list = get_grapheme_segments_list(trimmed_emoji_string);
+			if (grapheme_segments_list.length !== 1) {
+				return 'Please enter exactly one emoji.';
+			}
+
+			const emoji_pattern_regular_expression = /(\p{Extended_Pictographic}|\p{Regional_Indicator}{2}|[0-9#*]\uFE0F?\u20E3)/u;
+			if (!emoji_pattern_regular_expression.test(grapheme_segments_list[0])) {
+				return 'Please enter a valid emoji.';
+			}
+
+			return '';
+		}
+
+		function build_ai_label_data_object(selected_symbol_names_list) {
+			const sorted_symbol_names_list = selected_symbol_names_list.slice().sort();
+
+			if (sorted_symbol_names_list.length === 0) {
+				return {
+					has_ai_label_boolean: false,
+					query_string: '',
+					markdown_embed_string: '',
+					sorted_symbol_names_list: []
+				};
+			}
+
+			let clean_query_string = '';
+			let markdown_identifier_string = '';
+
+			for (const selected_symbol_name_string of sorted_symbol_names_list) {
+				if (clean_query_string !== '') {
+					clean_query_string = clean_query_string + '&';
+				}
+				clean_query_string = clean_query_string + selected_symbol_name_string;
+				markdown_identifier_string = markdown_identifier_string + symbol_title_mapping_object[selected_symbol_name_string].charAt(0);
+			}
+
+			const markdown_embed_string = 'AI Label: B-[{' + markdown_identifier_string + '}](' + ai_label_base_url_string + 'explain.html?' + clean_query_string + ')';
+
+			return {
+				has_ai_label_boolean: true,
+				query_string: clean_query_string,
+				markdown_embed_string: markdown_embed_string,
+				sorted_symbol_names_list: sorted_symbol_names_list
+			};
+		}
+
+		function build_readme_heading_line_string(readme_state_object) {
+			const private_prefix_string = readme_state_object.is_private_boolean ? '🔒 ' : '';
+
+			if (readme_state_object.is_forked_boolean) {
+				return '# ' + private_prefix_string + '🔀\uFE0E ' + readme_state_object.title_string + ' (by ' + readme_state_object.author_string + ')';
+			}
+
+			const bruno_made_suffix_string = readme_state_object.is_bruno_made_boolean ? 'Ⓑ' : '';
+			return '# ' + private_prefix_string + readme_state_object.title_string + bruno_made_suffix_string;
+		}
+
+		function build_readme_markdown_string(readme_state_object, ai_label_data_object) {
+			const heading_line_string = build_readme_heading_line_string(readme_state_object);
+			const quote_line_string = '> ' + readme_state_object.description_string + ' ' + readme_state_object.emoji_string;
+
+			if (ai_label_data_object.has_ai_label_boolean) {
+				return [
+					heading_line_string,
+					'',
+					ai_label_data_object.markdown_embed_string,
+					'',
+					quote_line_string
+				].join('\n');
+			}
+
+			return [
+				heading_line_string,
+				'',
+				quote_line_string
+			].join('\n');
+		}
+
+		function validate_readme_state_object(readme_state_object) {
+			const validation_errors_object = {
+				author_error_string: '',
+				title_error_string: '',
+				description_error_string: '',
+				emoji_error_string: ''
+			};
+
+			if (readme_state_object.is_forked_boolean && readme_state_object.author_string === '') {
+				validation_errors_object.author_error_string = 'Author is required when Forked is selected.';
+			}
+
+			if (readme_state_object.title_string === '') {
+				validation_errors_object.title_error_string = 'Title is required.';
+			}
+
+			if (readme_state_object.description_string === '') {
+				validation_errors_object.description_error_string = 'Short description is required.';
+			}
+
+			validation_errors_object.emoji_error_string = validate_emoji_value_string(readme_state_object.emoji_string);
+
+			return validation_errors_object;
+		}
+
+		function measure_symbol_image_aspect_ratio_promise(file_name_string) {
+			if (measured_aspect_ratio_cache_object[file_name_string] !== undefined) {
+				return Promise.resolve(measured_aspect_ratio_cache_object[file_name_string]);
+			}
+
+			return new Promise(function(resolve_function) {
+				const image_element = new Image();
+				image_element.onload = function() {
+					const aspect_ratio_number = image_element.naturalWidth / image_element.naturalHeight;
+					measured_aspect_ratio_cache_object[file_name_string] = aspect_ratio_number;
+					resolve_function(aspect_ratio_number);
+				};
+				image_element.onerror = function() {
+					measured_aspect_ratio_cache_object[file_name_string] = 1;
+					resolve_function(1);
+				};
+				image_element.src = ai_label_base_url_string + 'modules/' + file_name_string;
+			});
+		}
+
+		function initialize_readme_generator_application() {
+			const private_checkbox_element = document.getElementById('private_checkbox_element');
+			const forked_checkbox_element = document.getElementById('forked_checkbox_element');
+			const bruno_made_container_element = document.getElementById('bruno_made_container_element');
+			const bruno_made_checkbox_element = document.getElementById('bruno_made_checkbox_element');
+			const author_container_element = document.getElementById('author_container_element');
+			const author_input_element = document.getElementById('author_input_element');
+			const title_input_element = document.getElementById('title_input_element');
+			const description_input_element = document.getElementById('description_input_element');
+			const emoji_input_element = document.getElementById('emoji_input_element');
+			const author_validation_message_element = document.getElementById('author_validation_message_element');
+			const title_validation_message_element = document.getElementById('title_validation_message_element');
+			const description_validation_message_element = document.getElementById('description_validation_message_element');
+			const emoji_validation_message_element = document.getElementById('emoji_validation_message_element');
+			const symbol_checkbox_node_list = document.querySelectorAll('.symbol_checkbox_element');
+			const iframe_preview_container_element = document.getElementById('iframe_preview_container_element');
+			const readme_output_textarea_element = document.getElementById('readme_output_textarea_element');
+			const copy_readme_button_element = document.getElementById('copy_readme_button_element');
+			const download_readme_button_element = document.getElementById('download_readme_button_element');
+			const status_feedback_element = document.getElementById('status_feedback_element');
+
+			const touched_field_identifiers_set = new Set();
+			let preview_render_request_number = 0;
+
+			function synchronize_forked_field_visibility() {
+				const is_forked_boolean = forked_checkbox_element.checked;
+
+				if (is_forked_boolean) {
+					author_container_element.classList.remove('hidden_element');
+					author_input_element.required = true;
+					bruno_made_container_element.classList.add('hidden_element');
+				} else {
+					author_container_element.classList.add('hidden_element');
+					author_input_element.required = false;
+					bruno_made_container_element.classList.remove('hidden_element');
+				}
+			}
+
+			function collect_selected_symbol_names_list() {
+				const selected_symbol_names_list = [];
+				for (const symbol_checkbox_element of symbol_checkbox_node_list) {
+					if (symbol_checkbox_element.checked) {
+						selected_symbol_names_list.push(symbol_checkbox_element.value);
+					}
+				}
+				return selected_symbol_names_list;
+			}
+
+			function apply_field_validation_state(input_element, message_element, error_message_string, field_identifier_string) {
+				const should_display_error_boolean = error_message_string !== '' && touched_field_identifiers_set.has(field_identifier_string);
+				message_element.textContent = should_display_error_boolean ? error_message_string : '';
+
+				if (should_display_error_boolean) {
+					input_element.classList.add('input_invalid_state');
+					input_element.setAttribute('aria-invalid', 'true');
+				} else {
+					input_element.classList.remove('input_invalid_state');
+					input_element.removeAttribute('aria-invalid');
+				}
+			}
+
+			async function render_ai_label_preview(ai_label_data_object) {
+				preview_render_request_number = preview_render_request_number + 1;
+				const current_request_number = preview_render_request_number;
+
+				if (!ai_label_data_object.has_ai_label_boolean) {
+					iframe_preview_container_element.innerHTML = '<p class=\'preview_placeholder_text_element\'>No AI label selected.</p>';
+					return;
+				}
+
+				const file_names_to_measure_list = ['AI_Bracket_Open.svg'];
+				for (const selected_symbol_name_string of ai_label_data_object.sorted_symbol_names_list) {
+					file_names_to_measure_list.push(symbol_file_mapping_object[selected_symbol_name_string]);
+				}
+				file_names_to_measure_list.push('AI_Bracket_Closed.svg');
+
+				const aspect_ratio_promise_list = file_names_to_measure_list.map(measure_symbol_image_aspect_ratio_promise);
+				const aspect_ratio_results_list = await Promise.all(aspect_ratio_promise_list);
+
+				if (current_request_number !== preview_render_request_number) {
+					return;
+				}
+
+				let total_aspect_ratio_sum_number = 0;
+				for (const aspect_ratio_number of aspect_ratio_results_list) {
+					total_aspect_ratio_sum_number = total_aspect_ratio_sum_number + aspect_ratio_number;
+				}
+
+				const adjusted_aspect_ratio_number = (total_aspect_ratio_sum_number * 0.9) + 0.1;
+				const rounded_aspect_ratio_number = Math.round(adjusted_aspect_ratio_number * 1000) / 1000;
+
+				const preview_iframe_element = document.createElement('iframe');
+				preview_iframe_element.src = ai_label_base_url_string + 'label.html?' + ai_label_data_object.query_string;
+				preview_iframe_element.title = 'AI Label Preview';
+				preview_iframe_element.style.height = '3rem';
+				preview_iframe_element.style.aspectRatio = rounded_aspect_ratio_number + ' / 1';
+				preview_iframe_element.style.border = 'none';
+				preview_iframe_element.style.background = 'transparent';
+				preview_iframe_element.style.overflow = 'hidden';
+
+				iframe_preview_container_element.innerHTML = '';
+				iframe_preview_container_element.appendChild(preview_iframe_element);
+			}
+
+			function update_readme_output() {
+				synchronize_forked_field_visibility();
+				status_feedback_element.textContent = '';
+
+				const readme_state_object = {
+					is_private_boolean: private_checkbox_element.checked,
+					is_forked_boolean: forked_checkbox_element.checked,
+					is_bruno_made_boolean: !forked_checkbox_element.checked && bruno_made_checkbox_element.checked,
+					author_string: author_input_element.value.trim(),
+					title_string: title_input_element.value.trim(),
+					description_string: description_input_element.value.trim(),
+					emoji_string: emoji_input_element.value.trim()
+				};
+
+				const selected_symbol_names_list = collect_selected_symbol_names_list();
+				const ai_label_data_object = build_ai_label_data_object(selected_symbol_names_list);
+				render_ai_label_preview(ai_label_data_object);
+
+				const validation_errors_object = validate_readme_state_object(readme_state_object);
+
+				apply_field_validation_state(author_input_element, author_validation_message_element, validation_errors_object.author_error_string, 'author');
+				apply_field_validation_state(title_input_element, title_validation_message_element, validation_errors_object.title_error_string, 'title');
+				apply_field_validation_state(description_input_element, description_validation_message_element, validation_errors_object.description_error_string, 'description');
+				apply_field_validation_state(emoji_input_element, emoji_validation_message_element, validation_errors_object.emoji_error_string, 'emoji');
+
+				const active_error_messages_list = [
+					validation_errors_object.author_error_string,
+					validation_errors_object.title_error_string,
+					validation_errors_object.description_error_string,
+					validation_errors_object.emoji_error_string
+				].filter(function(error_message_string) {
+					return error_message_string !== '';
+				});
+
+				if (active_error_messages_list.length > 0) {
+					readme_output_textarea_element.value = 'Please complete all required fields:\n- ' + active_error_messages_list.join('\n- ');
+					copy_readme_button_element.disabled = true;
+					download_readme_button_element.disabled = true;
+					return;
+				}
+
+				const generated_markdown_string = build_readme_markdown_string(readme_state_object, ai_label_data_object);
+				readme_output_textarea_element.value = generated_markdown_string;
+				copy_readme_button_element.disabled = false;
+				download_readme_button_element.disabled = false;
+			}
+
+			function register_text_input_events(input_element, field_identifier_string) {
+				input_element.addEventListener('input', function() {
+					touched_field_identifiers_set.add(field_identifier_string);
+					update_readme_output();
+				});
+				input_element.addEventListener('blur', function() {
+					touched_field_identifiers_set.add(field_identifier_string);
+					update_readme_output();
+				});
+			}
+
+			async function copy_readme_to_clipboard() {
+				if (copy_readme_button_element.disabled) {
+					return;
+				}
+
+				try {
+					await navigator.clipboard.writeText(readme_output_textarea_element.value);
+					status_feedback_element.textContent = 'README.md copied to clipboard.';
+				} catch (clipboard_error_object) {
+					readme_output_textarea_element.select();
+					status_feedback_element.textContent = 'Automatic copy failed. Text selected for manual copy.';
+				}
+			}
+
+			function download_readme_file() {
+				if (download_readme_button_element.disabled) {
+					return;
+				}
+
+				const readme_blob_object = new Blob([readme_output_textarea_element.value + '\n'], { type: 'text/markdown;charset=utf-8' });
+				const temporary_object_url_string = URL.createObjectURL(readme_blob_object);
+				const download_anchor_element = document.createElement('a');
+				download_anchor_element.href = temporary_object_url_string;
+				download_anchor_element.download = 'README.md';
+				document.body.appendChild(download_anchor_element);
+				download_anchor_element.click();
+				document.body.removeChild(download_anchor_element);
+				URL.revokeObjectURL(temporary_object_url_string);
+				status_feedback_element.textContent = 'README.md download started.';
+			}
+
+			private_checkbox_element.addEventListener('change', update_readme_output);
+			forked_checkbox_element.addEventListener('change', update_readme_output);
+			bruno_made_checkbox_element.addEventListener('change', update_readme_output);
+
+			register_text_input_events(author_input_element, 'author');
+			register_text_input_events(title_input_element, 'title');
+			register_text_input_events(description_input_element, 'description');
+			register_text_input_events(emoji_input_element, 'emoji');
+
+			for (const symbol_checkbox_element of symbol_checkbox_node_list) {
+				symbol_checkbox_element.addEventListener('change', function(event_object) {
+					const clicked_checkbox_element = event_object.target;
+
+					if (clicked_checkbox_element.checked) {
+						if (clicked_checkbox_element.value === 'other') {
+							for (const loop_checkbox_element of symbol_checkbox_node_list) {
+								if (loop_checkbox_element.value !== 'other') {
+									loop_checkbox_element.checked = false;
+								}
+							}
+						} else {
+							for (const loop_checkbox_element of symbol_checkbox_node_list) {
+								if (loop_checkbox_element.value === 'other') {
+									loop_checkbox_element.checked = false;
+								}
+							}
+						}
+					}
+
+					update_readme_output();
+				});
+			}
+
+			copy_readme_button_element.addEventListener('click', copy_readme_to_clipboard);
+			download_readme_button_element.addEventListener('click', download_readme_file);
+
+			update_readme_output();
+		}
+
+		initialize_readme_generator_application();
+	</script>
+</body>
+</html>
