@@ -461,7 +461,7 @@
 				return '# ' + private_prefix_string + '🔀\uFE0E ' + readme_state_object.title_string + ' (by ' + readme_state_object.author_string + ')';
 			}
 
-			const bruno_made_suffix_string = readme_state_object.is_bruno_made_boolean ? 'Ⓑ' : '';
+			const bruno_made_suffix_string = readme_state_object.is_bruno_made_boolean ? '<sup>Ⓑ</sup>' : '';
 			return '# ' + private_prefix_string + readme_state_object.title_string + bruno_made_suffix_string;
 		}
 
