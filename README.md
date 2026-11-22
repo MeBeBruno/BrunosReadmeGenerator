@@ -1,4 +1,4 @@
-# Bruno's `README.md` GeneratorⒷ
+# Bruno's `README.md` Generator<sup>Ⓑ</sup>
 
 AI Label: B-[{C}](https://mebebruno.github.io/BrunosAILabelSystem/explain.html?code)
 
